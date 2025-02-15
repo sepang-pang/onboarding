@@ -17,6 +17,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -62,5 +64,31 @@ public class AuthServiceApiV1Test {
         // Then
         assertThat(response.getUsername()).isEqualTo(reqDto.getUsername());
         assertThat(response.getNickname()).isEqualTo(reqDto.getNickname());
+    }
+
+    @Test
+    @DisplayName("회원가입 실패 테스트 - 중복된 아이디")
+    public void testSignupFailure() {
+
+        // Given
+        ReqAuthPostSignupDTOApiV1 reqDto = ReqAuthPostSignupDTOApiV1.builder()
+                .username("testuser")
+                .password("Test123!")
+                .nickname("testnickname")
+                .build();
+
+        UserEntity existingUser = UserEntity.create(
+                reqDto.getUsername(),
+                "encodedPassword",
+                reqDto.getNickname(),
+                RoleType.USER
+        );
+
+        given(userRepository.findByUsername(reqDto.getUsername())).willReturn(Optional.of(existingUser));
+
+        // When & Then
+        assertThatThrownBy(
+                () -> authServiceApiV1.signup(reqDto))
+                .isInstanceOf(IllegalArgumentException.class).hasMessage("이미 존재하는 아이디입니다.");
     }
 }
