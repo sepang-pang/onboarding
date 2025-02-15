@@ -6,6 +6,8 @@ import com.backend.onboarding.infrastructure.docs.AuthControllerApiV1Swagger;
 import com.backend.onboarding.presentation.req.ReqAuthPostSignupDTOApiV1;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,8 +21,11 @@ public class AuthControllerAPiV1 implements AuthControllerApiV1Swagger {
     private final AuthServiceApiV1 authServiceApiV1;
 
     @PostMapping("/signup")
-    public ResAuthPostSignupDTOApiV1 signup(@RequestBody @Valid ReqAuthPostSignupDTOApiV1 dto) {
-        return authServiceApiV1.signup(dto);
+    public ResponseEntity<ResAuthPostSignupDTOApiV1> signup(@RequestBody @Valid ReqAuthPostSignupDTOApiV1 dto) {
+        return new ResponseEntity<>(
+                authServiceApiV1.signup(dto),
+                HttpStatus.OK
+        );
     }
 
 }

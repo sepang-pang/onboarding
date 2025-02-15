@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +24,6 @@ public interface AuthControllerApiV1Swagger {
             @ApiResponse(responseCode = "400", description = "회원가입 실패.", content = @Content(schema = @Schema(implementation = ResAuthPostSignupDTOApiV1.class)))
     })
     @PostMapping("/signup")
-    ResAuthPostSignupDTOApiV1 signup(@RequestBody @Valid ReqAuthPostSignupDTOApiV1 dto);
+    ResponseEntity<ResAuthPostSignupDTOApiV1> signup(@RequestBody @Valid ReqAuthPostSignupDTOApiV1 dto);
 
 }
