@@ -2,7 +2,6 @@ package com.backend.onboarding.infrastructure.config;
 
 import com.backend.onboarding.infrastructure.security.CustomUserDetailsService;
 import com.backend.onboarding.infrastructure.utl.JwtUtil;
-import com.backend.onboarding.presentation.filter.JwtAuthenticationFilter;
 import com.backend.onboarding.presentation.filter.JwtAuthorizationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -23,18 +22,10 @@ public class SecurityConfig {
 
     private final JwtUtil jwtUtil;
     private final CustomUserDetailsService customUserDetailsService;
-    private final AuthenticationConfiguration authenticationConfiguration;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
-    }
-
-    @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil);
-        filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
-        return filter;
     }
 
     @Bean
@@ -60,8 +51,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
         );
 
-        http.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
-        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
