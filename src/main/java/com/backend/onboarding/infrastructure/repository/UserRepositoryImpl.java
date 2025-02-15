@@ -19,6 +19,11 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    public Optional<UserEntity> findByUsernameAndDeletedAtIsNull(String username) {
+        return jpaUserRepository.findByUsernameAndDeletedAtIsNull(username);
+    }
+
+    @Override
     public UserEntity save(UserEntity userEntity) {
         return jpaUserRepository.save(userEntity);
     }
