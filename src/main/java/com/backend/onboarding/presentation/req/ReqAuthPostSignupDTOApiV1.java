@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 public class ReqAuthPostSignupDTOApiV1 {
 
     @NotBlank(message = "아이디를 입력해주세요.")
+    @Pattern(regexp = "^[a-z][a-z0-9]{7,15}$", message = "아이디는 8~16자의 소문자 영문자와 숫자만 사용할 수 있으며, 첫 글자는 영문자여야 합니다.")
     private String username;
 
     @NotBlank(message = "비밀번호를 입력해주세요.")
