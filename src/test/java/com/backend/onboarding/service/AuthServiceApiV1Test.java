@@ -6,6 +6,7 @@ import com.backend.onboarding.domain.model.UserEntity;
 import com.backend.onboarding.domain.model.constraint.RoleType;
 import com.backend.onboarding.domain.repository.UserRepository;
 import com.backend.onboarding.presentation.req.ReqAuthPostSignupDTOApiV1;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,7 +19,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -34,17 +34,22 @@ public class AuthServiceApiV1Test {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    private ReqAuthPostSignupDTOApiV1 reqDto;
+
+    @BeforeEach
+    public void setUp() {
+        reqDto = ReqAuthPostSignupDTOApiV1.builder()
+                .username("testuser")
+                .password("Test123!")
+                .nickname("testnickname")
+                .build();
+    }
+
     @Test
     @DisplayName("회원가입 성공 테스트")
     public void testSignupSuccess() {
 
         // Given
-        ReqAuthPostSignupDTOApiV1 reqDto = ReqAuthPostSignupDTOApiV1.builder()
-                .username("testuser")
-                .password("Test123!")
-                .nickname("testnickname")
-                .build();
-
         String encodedPassword = reqDto.getPassword();
 
         UserEntity savedUser = UserEntity.create(
@@ -71,12 +76,6 @@ public class AuthServiceApiV1Test {
     public void testSignupFailure() {
 
         // Given
-        ReqAuthPostSignupDTOApiV1 reqDto = ReqAuthPostSignupDTOApiV1.builder()
-                .username("testuser")
-                .password("Test123!")
-                .nickname("testnickname")
-                .build();
-
         UserEntity existingUser = UserEntity.create(
                 reqDto.getUsername(),
                 "encodedPassword",
