@@ -2,11 +2,15 @@ package com.backend.onboarding.presentation.req;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class ReqAuthPostSignupDTOApiV1 {
 
     @NotBlank(message = "아이디를 입력해주세요.")
