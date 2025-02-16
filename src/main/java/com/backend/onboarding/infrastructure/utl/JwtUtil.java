@@ -4,6 +4,7 @@ import com.backend.onboarding.domain.model.constraint.RoleType;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,13 +19,12 @@ import java.util.Date;
 @Slf4j(topic = "JwtUtil")
 public class JwtUtil {
 
-    public static final String AUTHORIZATION_HEADER = "Authorization";
-
+    public static final String ACCESS_JWT_HEADER = "Authorization";
+    public static final String REFRESH_JWT_HEADER = "Refresh-Jwt";
     public static final String AUTHORIZATION_KEY = "auth";
-
     public static final String BEARER_PREFIX = "Bearer ";
-
-    private final long TOKEN_TIME = 60 * 60 * 1000L;
+    private final long ACCESS_TOKEN_TIME = 60 * 60 * 1000L;
+    private final long REFRESH_TOKEN_TIME = 14 * 24 * 60 * 60 * 1000L;
 
     @Value("${jwt.secret.key}")
     private String secretKey;
@@ -37,21 +37,42 @@ public class JwtUtil {
         key = Keys.hmacShaKeyFor(bytes);
     }
 
-    public String createToken(String username, RoleType role) {
+    public String generateAccessJwt(String username, RoleType role) {
         Date date = new Date();
 
         return BEARER_PREFIX +
                 Jwts.builder()
                         .setSubject(username)
                         .claim(AUTHORIZATION_KEY, role)
-                        .setExpiration(new Date(date.getTime() + TOKEN_TIME))
+                        .setExpiration(new Date(date.getTime() + ACCESS_TOKEN_TIME))
                         .setIssuedAt(date)
                         .signWith(key, signatureAlgorithm)
                         .compact();
     }
 
+    public String generateRefreshJwt() {
+        Date date = new Date();
+
+        return Jwts.builder()
+                .setExpiration(new Date(date.getTime() + REFRESH_TOKEN_TIME))
+                .setIssuedAt(date)
+                .signWith(key, signatureAlgorithm)
+                .compact();
+    }
+
+    public Cookie generateRefreshJwtCookie(String refreshJwt) {
+        Cookie refreshJwtCookie = new Cookie(REFRESH_JWT_HEADER, refreshJwt);
+
+        refreshJwtCookie.setHttpOnly(true);
+        refreshJwtCookie.setSecure(true);
+        refreshJwtCookie.setPath("/");
+        refreshJwtCookie.setMaxAge((int) REFRESH_TOKEN_TIME);
+
+        return refreshJwtCookie;
+    }
+
     public String getJwtFromHeader(HttpServletRequest request) {
-        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
+        String bearerToken = request.getHeader(ACCESS_JWT_HEADER);
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
             return bearerToken.substring(7);
         }
