@@ -46,7 +46,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
             if (!jwtUtil.validateToken(tokenValue)) {
                 log.error("Token Error");
-                refreshAccessJWt(req, res);
+                refreshAccessJwt(req, res);
                 return;
             }
 
@@ -76,7 +76,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 
-    public void refreshAccessJWt(HttpServletRequest req, HttpServletResponse res) throws IOException {
+    public void refreshAccessJwt(HttpServletRequest req, HttpServletResponse res) throws IOException {
 
         String expiredAccessJwt = jwtUtil.getJwtFromHeader(req);
         Claims claims = jwtUtil.getUserInfoFromToken(expiredAccessJwt);
