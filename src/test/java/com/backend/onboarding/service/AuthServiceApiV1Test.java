@@ -1,5 +1,6 @@
 package com.backend.onboarding.service;
 
+import com.backend.onboarding.application.global.exception.DuplicateResourceException;
 import com.backend.onboarding.application.res.ResAuthPostSignupDTOApiV1;
 import com.backend.onboarding.application.service.AuthServiceApiV1;
 import com.backend.onboarding.domain.model.UserEntity;
@@ -88,6 +89,6 @@ public class AuthServiceApiV1Test {
         // When & Then
         assertThatThrownBy(
                 () -> authServiceApiV1.signup(reqDto))
-                .isInstanceOf(IllegalArgumentException.class).hasMessage("이미 존재하는 아이디입니다.");
+                .isInstanceOf(DuplicateResourceException.class).hasMessage("이미 존재하는 아이디입니다.");
     }
 }
