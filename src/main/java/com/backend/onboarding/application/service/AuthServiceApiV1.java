@@ -10,6 +10,7 @@ import com.backend.onboarding.presentation.req.ReqAuthPostLoginDTOApiV1;
 import com.backend.onboarding.presentation.req.ReqAuthPostSignupDTOApiV1;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j(topic = "AuthServiceApiV1")
 public class AuthServiceApiV1 {
 
     private final JwtUtil jwtUtil;
@@ -48,17 +50,23 @@ public class AuthServiceApiV1 {
 
         UserEntity userEntity = userRepository.findByUsernameAndDeletedAtIsNull(dto.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("아이디를 정확히 입력해주세요."));
+        log.info("사용자 '{}' 로그인 시도", userEntity.getUsername());
 
         validatePasswordMatches(dto, userEntity);
 
         String accessJwt = jwtUtil.generateAccessJwt(userEntity.getUsername(), userEntity.getRole());
-        String refreshJwt = jwtUtil.generateRefreshJwt();
 
-        // Redis 에 Refresh 토큰 저장
-        redisRefreshTokenService.saveRefreshToken(userEntity.getUsername(), refreshJwt);
+        // Redis 에 Refresh Token 저장
+        if (redisRefreshTokenService.getRefreshToken(userEntity.getUsername()) == null) {
+            String refreshJwt = jwtUtil.generateRefreshJwt();
+            redisRefreshTokenService.saveRefreshToken(userEntity.getUsername(), refreshJwt);
+            response.addCookie(jwtUtil.generateRefreshJwtCookie(refreshJwt));
+        }
 
-        // 리프레시 토큰 쿠키에 담기
-        response.addCookie(jwtUtil.generateRefreshJwtCookie(refreshJwt));
+        // Access Token 헤더에 담기
+        response.addHeader(JwtUtil.AUTHORIZATION_KEY, accessJwt);
+
+        log.info("사용자 '{}' 로그인 성공, Access Token 발급 완료", userEntity.getUsername());
 
         return ResAuthPostLoginDTOApiV1.of(accessJwt);
     }
