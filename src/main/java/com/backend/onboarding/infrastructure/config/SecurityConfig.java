@@ -1,5 +1,6 @@
 package com.backend.onboarding.infrastructure.config;
 
+import com.backend.onboarding.application.service.RedisRefreshTokenService;
 import com.backend.onboarding.infrastructure.security.CustomUserDetailsService;
 import com.backend.onboarding.infrastructure.utl.JwtUtil;
 import com.backend.onboarding.presentation.filter.JwtAuthorizationFilter;
@@ -22,6 +23,7 @@ public class SecurityConfig {
 
     private final JwtUtil jwtUtil;
     private final CustomUserDetailsService customUserDetailsService;
+    private final RedisRefreshTokenService redisRefreshTokenService;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -30,7 +32,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthorizationFilter jwtAuthorizationFilter() {
-        return new JwtAuthorizationFilter(jwtUtil, customUserDetailsService);
+        return new JwtAuthorizationFilter(jwtUtil, customUserDetailsService, redisRefreshTokenService);
     }
 
     @Bean
@@ -46,8 +48,8 @@ public class SecurityConfig {
                 authorizeHttpRequests
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers("/").permitAll()
-                        .requestMatchers("/v1/auth/signup").permitAll()
-                        .requestMatchers("/v1/auth/sign").permitAll()
+                        .requestMatchers("/signup").permitAll()
+                        .requestMatchers("/sign").permitAll()
                         .anyRequest().authenticated()
         );
 

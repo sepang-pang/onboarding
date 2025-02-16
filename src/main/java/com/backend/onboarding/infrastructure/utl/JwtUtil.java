@@ -23,8 +23,8 @@ public class JwtUtil {
     public static final String REFRESH_JWT_HEADER = "Refresh-Jwt";
     public static final String AUTHORIZATION_KEY = "auth";
     public static final String BEARER_PREFIX = "Bearer ";
-    private final long ACCESS_TOKEN_TIME = 60 * 60 * 1000L;
-    private final long REFRESH_TOKEN_TIME = 14 * 24 * 60 * 60 * 1000L;
+    private final long ACCESS_TOKEN_TIME = 60 * 60 * 1000L; // 1시간
+    private final long REFRESH_TOKEN_TIME = 14 * 24 * 60 * 60 * 1000L; // 2주
 
     @Value("${jwt.secret.key}")
     private String secretKey;
@@ -96,6 +96,10 @@ public class JwtUtil {
     }
 
     public Claims getUserInfoFromToken(String token) {
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+        try {
+            return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+        } catch (ExpiredJwtException e) {
+            return e.getClaims();
+        }
     }
 }
