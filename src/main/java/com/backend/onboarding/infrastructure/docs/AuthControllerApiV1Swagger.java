@@ -30,8 +30,9 @@ public interface AuthControllerApiV1Swagger {
 
     @Operation(summary = "로그인", description = "로그인을 하는 API 입니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "회원가입 성공", content = @Content(schema = @Schema(implementation = ResAuthPostSignupDTOApiV1.class))),
-            @ApiResponse(responseCode = "400", description = "회원가입 실패.", content = @Content(schema = @Schema(implementation = ResAuthPostSignupDTOApiV1.class)))
+            @ApiResponse(responseCode = "200", description = "로그인 성공", content = @Content(schema = @Schema(implementation = ResAuthPostLoginDTOApiV1.class))),
+            @ApiResponse(responseCode = "400", description = "로그인 실패.", content = @Content(schema = @Schema(implementation = ResAuthPostLoginDTOApiV1.class))),
+            @ApiResponse(responseCode = "401", description = "인증 실패", content = @Content(schema = @Schema(implementation = ResAuthPostLoginDTOApiV1.class)))
     })
     @PostMapping("/sign")
     ResponseEntity<ResAuthPostLoginDTOApiV1> sign(@RequestBody @Valid ReqAuthPostLoginDTOApiV1 dto, HttpServletResponse response);
