@@ -1,7 +1,7 @@
 package com.backend.onboarding.presentation.filter;
 
 import com.backend.onboarding.application.res.ResAuthPostLoginDTOApiV1;
-import com.backend.onboarding.application.service.RedisRefreshTokenService;
+import com.backend.onboarding.application.service.RedisRefreshTokenServiceV1;
 import com.backend.onboarding.domain.model.constraint.RoleType;
 import com.backend.onboarding.infrastructure.security.CustomUserDetailsService;
 import com.backend.onboarding.infrastructure.utl.JwtUtil;
@@ -29,12 +29,12 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final CustomUserDetailsService customUserDetailsService;
-    private final RedisRefreshTokenService redisRefreshTokenService;
+    private final RedisRefreshTokenServiceV1 redisRefreshTokenServiceV1;
 
-    public JwtAuthorizationFilter(JwtUtil jwtUtil, CustomUserDetailsService customUserDetailsService, RedisRefreshTokenService redisRefreshTokenService) {
+    public JwtAuthorizationFilter(JwtUtil jwtUtil, CustomUserDetailsService customUserDetailsService, RedisRefreshTokenServiceV1 redisRefreshTokenServiceV1) {
         this.jwtUtil = jwtUtil;
         this.customUserDetailsService = customUserDetailsService;
-        this.redisRefreshTokenService = redisRefreshTokenService;
+        this.redisRefreshTokenServiceV1 = redisRefreshTokenServiceV1;
     }
 
     @Override
@@ -98,12 +98,12 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         log.debug("Refresh Token 추출 완료");
 
-        String refreshJwtFromRedis = redisRefreshTokenService.getRefreshToken(username);
+        String refreshJwtFromRedis = redisRefreshTokenServiceV1.getRefreshToken(username);
 
         // Refresh Token 유효성 검증
         if (!StringUtils.hasText(refreshJwtFromCookie) || !jwtUtil.validateToken(refreshJwtFromCookie) || !Objects.equals(refreshJwtFromCookie, refreshJwtFromRedis)) {
             log.info("사용자 '{}'의 Refresh Token 만료 또는 유효하지 않음", username);
-            redisRefreshTokenService.deleteRefreshToken(username);
+            redisRefreshTokenServiceV1.deleteRefreshToken(username);
             res.sendError(401, "Refresh Token이 존재하지 않거나 만료됐습니다.");
             return;
         }

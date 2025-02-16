@@ -1,6 +1,6 @@
 package com.backend.onboarding.application.service;
 
-public interface RedisRefreshTokenService {
+public interface RedisRefreshTokenServiceV1 {
 
     void saveRefreshToken(String username, String refreshToken);
 

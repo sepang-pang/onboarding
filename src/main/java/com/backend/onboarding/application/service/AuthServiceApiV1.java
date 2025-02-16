@@ -26,7 +26,7 @@ public class AuthServiceApiV1 {
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final RedisRefreshTokenService redisRefreshTokenService;
+    private final RedisRefreshTokenServiceV1 redisRefreshTokenServiceV1;
 
     @Transactional
     public ResAuthPostSignupDTOApiV1 signup(ReqAuthPostSignupDTOApiV1 dto) {
@@ -57,9 +57,9 @@ public class AuthServiceApiV1 {
         String accessJwt = jwtUtil.generateAccessJwt(userEntity.getUsername(), userEntity.getRole());
 
         // Redis 에 Refresh Token 저장
-        if (redisRefreshTokenService.getRefreshToken(userEntity.getUsername()) == null) {
+        if (redisRefreshTokenServiceV1.getRefreshToken(userEntity.getUsername()) == null) {
             String refreshJwt = jwtUtil.generateRefreshJwt();
-            redisRefreshTokenService.saveRefreshToken(userEntity.getUsername(), refreshJwt);
+            redisRefreshTokenServiceV1.saveRefreshToken(userEntity.getUsername(), refreshJwt);
             response.addCookie(jwtUtil.generateRefreshJwtCookie(refreshJwt));
         }
 
