@@ -21,6 +21,11 @@ spring:
         format_sql: true
     open-in-view: false
 
+  data:
+    redis:
+      port: ${REDIS_PORT}
+      host: ${REDIS_HOST}
+
 jwt:
   secret:
     key: ${JWT_SECRET_KEY}
