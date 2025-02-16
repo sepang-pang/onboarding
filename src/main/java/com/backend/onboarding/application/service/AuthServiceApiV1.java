@@ -1,5 +1,6 @@
 package com.backend.onboarding.application.service;
 
+import com.backend.onboarding.application.global.exception.BadRequestException;
 import com.backend.onboarding.application.global.exception.DuplicateResourceException;
 import com.backend.onboarding.application.global.exception.EntityNotFoundException;
 import com.backend.onboarding.application.res.ResAuthPostLoginDTOApiV1;
@@ -89,7 +90,7 @@ public class AuthServiceApiV1 {
 
     private void validatePasswordMatches(ReqAuthPostLoginDTOApiV1 dto, UserEntity userEntity) {
         if (!passwordEncoder.matches(dto.getPassword(), userEntity.getPassword())) {
-            throw new IllegalArgumentException("비밀번호를 정확히 입력해주세요.");
+            throw new BadRequestException("비밀번호를 정확히 입력해주세요.");
         }
     }
 }
