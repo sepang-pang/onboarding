@@ -6,8 +6,6 @@ import java.util.Optional;
 
 public interface UserRepository {
 
-    Optional<UserEntity> findByUsername(String username);
-
     Optional<UserEntity> findByUsernameAndDeletedAtIsNull(String username);
 
     UserEntity save(UserEntity UserEntity);
