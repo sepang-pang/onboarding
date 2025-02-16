@@ -15,10 +15,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 @Tag(name = "Auth", description = "회원가입, 로그인 인증 등 인증 관련 API를 제공합니다.")
-@RequestMapping("/v1/auth")
 public interface AuthControllerApiV1Swagger {
 
     @Operation(summary = "회원가입", description = "회원가입을 하는 API 입니다.")
