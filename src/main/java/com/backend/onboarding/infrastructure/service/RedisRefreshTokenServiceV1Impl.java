@@ -1,13 +1,13 @@
 package com.backend.onboarding.infrastructure.service;
 
-import com.backend.onboarding.application.service.RedisRefreshTokenService;
+import com.backend.onboarding.application.service.RedisRefreshTokenServiceV1;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class RedisRefreshTokenServiceImpl implements RedisRefreshTokenService {
+public class RedisRefreshTokenServiceV1Impl implements RedisRefreshTokenServiceV1 {
 
     private final RedisTemplate<String, String> redisTemplate;
 

@@ -13,8 +13,8 @@ public enum RoleType {
     private final String authority;
 
     public static class Authority {
-        public static final String USER = "회원";
-        public static final String ADMIN = "관리자";
+        public static final String USER = "ROLE_USER";
+        public static final String ADMIN = "ROLE_ADMIN";
     }
 }
 

@@ -1,5 +1,8 @@
 package com.backend.onboarding.application.service;
 
+import com.backend.onboarding.application.global.exception.BadRequestException;
+import com.backend.onboarding.application.global.exception.DuplicateResourceException;
+import com.backend.onboarding.application.global.exception.EntityNotFoundException;
 import com.backend.onboarding.application.res.ResAuthPostLoginDTOApiV1;
 import com.backend.onboarding.application.res.ResAuthPostSignupDTOApiV1;
 import com.backend.onboarding.domain.model.UserEntity;
@@ -11,7 +14,6 @@ import com.backend.onboarding.presentation.req.ReqAuthPostSignupDTOApiV1;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,12 +28,12 @@ public class AuthServiceApiV1 {
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final RedisRefreshTokenService redisRefreshTokenService;
+    private final RedisRefreshTokenServiceV1 redisRefreshTokenServiceV1;
 
     @Transactional
     public ResAuthPostSignupDTOApiV1 signup(ReqAuthPostSignupDTOApiV1 dto) {
 
-        checkUsernameDuplication(dto.getUsername());
+        checkForDuplicateUsername(dto.getUsername());
 
         UserEntity userEntityForSaving = UserEntity.create(
                 dto.getUsername(),
@@ -48,8 +50,7 @@ public class AuthServiceApiV1 {
     @Transactional
     public ResAuthPostLoginDTOApiV1 sign(ReqAuthPostLoginDTOApiV1 dto, HttpServletResponse response) {
 
-        UserEntity userEntity = userRepository.findByUsernameAndDeletedAtIsNull(dto.getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException("아이디를 정확히 입력해주세요."));
+        UserEntity userEntity = getUserEntityByUsername(dto.getUsername());
         log.info("사용자 '{}' 로그인 시도", userEntity.getUsername());
 
         validatePasswordMatches(dto, userEntity);
@@ -57,9 +58,9 @@ public class AuthServiceApiV1 {
         String accessJwt = jwtUtil.generateAccessJwt(userEntity.getUsername(), userEntity.getRole());
 
         // Redis 에 Refresh Token 저장
-        if (redisRefreshTokenService.getRefreshToken(userEntity.getUsername()) == null) {
+        if (redisRefreshTokenServiceV1.getRefreshToken(userEntity.getUsername()) == null) {
             String refreshJwt = jwtUtil.generateRefreshJwt();
-            redisRefreshTokenService.saveRefreshToken(userEntity.getUsername(), refreshJwt);
+            redisRefreshTokenServiceV1.saveRefreshToken(userEntity.getUsername(), refreshJwt);
             response.addCookie(jwtUtil.generateRefreshJwtCookie(refreshJwt));
         }
 
@@ -71,16 +72,25 @@ public class AuthServiceApiV1 {
         return ResAuthPostLoginDTOApiV1.of(accessJwt);
     }
 
-    private void checkUsernameDuplication(String username) {
-        Optional<UserEntity> userEntityOptional = userRepository.findByUsername(username);
-        if (userEntityOptional.isPresent()) {
-            throw new IllegalArgumentException("이미 존재하는 아이디입니다.");
-        }
+    private void checkForDuplicateUsername(String username) {
+        getUserEntityOptionalByUsername(username)
+                .ifPresent(user -> {
+                    throw new DuplicateResourceException("이미 존재하는 아이디입니다.");
+                });
+    }
+
+    private UserEntity getUserEntityByUsername(String username) {
+        return getUserEntityOptionalByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("아이디를 정확히 입력해주세요."));
+    }
+
+    private Optional<UserEntity> getUserEntityOptionalByUsername(String username) {
+        return userRepository.findByUsernameAndDeletedAtIsNull(username);
     }
 
     private void validatePasswordMatches(ReqAuthPostLoginDTOApiV1 dto, UserEntity userEntity) {
         if (!passwordEncoder.matches(dto.getPassword(), userEntity.getPassword())) {
-            throw new IllegalArgumentException("비밀번호를 정확히 입력해주세요.");
+            throw new BadRequestException("비밀번호를 정확히 입력해주세요.");
         }
     }
 }

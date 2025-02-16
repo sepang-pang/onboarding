@@ -59,7 +59,7 @@ public class AuthServiceApiV1Test {
                 RoleType.USER
         );
 
-        given(userRepository.findByUsername(reqDto.getUsername())).willReturn(Optional.empty());
+        given(userRepository.findByUsernameAndDeletedAtIsNull(reqDto.getUsername())).willReturn(Optional.empty());
         given(passwordEncoder.encode(reqDto.getPassword())).willReturn(encodedPassword);
         given(userRepository.save(any(UserEntity.class))).willReturn(savedUser);
 
@@ -83,7 +83,7 @@ public class AuthServiceApiV1Test {
                 RoleType.USER
         );
 
-        given(userRepository.findByUsername(reqDto.getUsername())).willReturn(Optional.of(existingUser));
+        given(userRepository.findByUsernameAndDeletedAtIsNull(reqDto.getUsername())).willReturn(Optional.of(existingUser));
 
         // When & Then
         assertThatThrownBy(
