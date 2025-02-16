@@ -25,11 +25,11 @@ public class JwtUtil {
     public static final String BEARER_PREFIX = "Bearer ";
     private final long ACCESS_TOKEN_TIME = 60 * 60 * 1000L; // 1시간
     private final long REFRESH_TOKEN_TIME = 14 * 24 * 60 * 60 * 1000L; // 2주
+    private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
 
     @Value("${jwt.secret.key}")
-    private String secretKey;
-    private Key key;
-    private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
+    public String secretKey;
+    public Key key;
 
     @PostConstruct
     public void init() {
