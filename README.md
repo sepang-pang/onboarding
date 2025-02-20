@@ -3,7 +3,7 @@
 
 ---
 
-🔗 LINK : http://3.34.153.147:8080/swagger-ui/index.html
+🔗 LINK : ~http://3.34.153.147:8080/swagger-ui/index.html~
 
 ---
 
